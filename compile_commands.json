@@ -1,0 +1,38 @@
+[
+  {
+    "file": "src/main.c",
+    "arguments": [
+      "/home/endercodebrine/CEdev/bin/ez80-clang",
+      "-MD",
+      "-c",
+      "-emit-llvm",
+      "-nostdinc",
+      "-Xclang",
+      "-fforce-mangle-main-argc-argv",
+      "-fno-autolink",
+      "-fno-addrsig",
+      "-fno-threadsafe-statics",
+      "-fno-aligned-allocation",
+      "-mllvm",
+      "-profile-guided-section-prefix=false",
+      "-mllvm",
+      "-z80-gas-style",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-fno-math-errno",
+      "-D__TICE__=1",
+      "-isystem",
+      "/home/endercodebrine/CEdev/include",
+      "-Isrc",
+      "-Wall",
+      "-Wextra",
+      "-Oz",
+      "-DNDEBUG=1",
+      "src/main.c",
+      "-o",
+      "obj/src/main.c.bc"
+    ],
+    "directory": "/home/endercodebrine/CEdev/examples/quality_os",
+    "output": "obj/src/main.c.bc"
+  }
+]
