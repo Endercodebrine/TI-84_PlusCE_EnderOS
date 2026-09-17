@@ -1,4 +1,4 @@
-# TI-84+CE_EnderOS
+# TI-84_PlusCE_EnderOS
 
 A new and improved interface for the TI-84 +CE
 ___
