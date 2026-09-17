@@ -55,7 +55,7 @@ dkms.conf
 # debug information files
 *.dwo
 
-# Bin and obj folders
+# Bin, obj and .cache folders
 bin/
 obj/
-
+.cache/
