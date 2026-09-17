@@ -55,6 +55,9 @@ dkms.conf
 # debug information files
 *.dwo
 
+# Compile commands for linting
+compile_commands.json
+
 # Bin, obj and hidden folders
 bin/
 obj/
