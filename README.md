@@ -9,4 +9,4 @@ ___
 To compile, download the CEdev toolchain [here](https://github.com/CE-Programming/toolchain), set it up, clone this repo into the examples folder (`git clone https://codeberg.org/Endercodebrine/TI-84+CE_EnderOS/ /path/to/CEdev/examples/EnderOS`) (I wrote it in the examples folder, and I'm unsure if it will compile elsewhere, although it probably will), and run the `make` command in that folder. 
 ___
 ## Use
-Load the .8xp file onto your caclulator, and run it through your desired shell.
+Load the .8xp file onto your caclulator, and run it through your desired program.
