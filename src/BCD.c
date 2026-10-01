@@ -10,10 +10,34 @@ inline bool read_bit(T value, unsigned int index){
 const uint8_t nibble = 4;
 const int max_int = pow(10, 12);
 struct BCD {
-	static const uint8_t figure_offset   = 16;
-	static const uint8_t exponent_offset = 7;
+	static const uint8_t figure_offset   = 12;
+	static const uint8_t exponent_offset = 4;
 
 	uint64_t value = 0;
+
+	// 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000   0000 0000     00        00
+	// |--------------------------------------------------------------|   |-------|     ||        ||
+	//                        Value                                       Exponents   Useless    Signs
+
+	// The value is stored in nibbles, such that each nibble is one digit.
+	// For example:
+	// 1001 1000 0111 0110 0101 0100 0011 0010 0001
+	// equals
+	// 987654321
+	// 
+	// Probably
+
+	// Exponents are stored very similarly to digits, so the exponent
+	// 1001 1001
+	// would be
+	// 99
+	
+	// Useless bits are self-descriptive
+	
+	// Sign bits work like this
+	// 01 - Value is negative
+	// 10 - Exponent is negative
+	// 11 - Both values are negative
 
 	~BCD()  {}
 
@@ -49,7 +73,7 @@ struct BCD {
 
 		// So this is very not right
 		// THINK AGAIN!
-		for (uint8_t i = 0; i < 12; i++){
+		for (uint8_t i = 0; i < 13; i++){
 			for (uint8_t j = 0; j < nibble; j++){
 				// Read the bit at the indexed value, shift it by j so it's in the right position, 
 				// and bitwise OR it into the result.
