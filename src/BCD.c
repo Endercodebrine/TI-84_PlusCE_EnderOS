@@ -7,11 +7,13 @@ inline bool read_bit(T value, unsigned int index){
 	return (value >> index) & 1;
 }
 
-const uint8_t nibble = 4;
+constexpr uint8_t nibble = 4;
 const int max_int = pow(10, 12);
 struct BCD {
-	static const uint8_t figure_offset   = 12;
-	static const uint8_t exponent_offset = 4;
+	static constexpr uint8_t figure_offset   = 12;
+	static constexpr uint8_t exponent_offset = 4;
+
+	static constexpr uint8_t digit_count = (64 - figure_offset) / nibble;
 
 	uint64_t value = 0;
 
@@ -138,10 +140,10 @@ struct BCD {
 		uint8_t i;
 
 		for (i = 0; i < nibble; i++)
-			ones |= (read_bit(value, i + 7) << i);
+			ones |= (read_bit(value, i + exponent_offset) << i);
 
 		for (i = 0; i < nibble; i++)
-			tens |= (read_bit(value, i + 11) << i);
+			tens |= (read_bit(value, i + (exponent_offset + nibble)) << i);
 
 		return (read_bit(value, 1) ? -(ones + (tens * 10)) : (ones + (tens * 10)));
 	}
