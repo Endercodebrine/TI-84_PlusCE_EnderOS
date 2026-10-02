@@ -8,6 +8,7 @@ inline bool read_bit(T value, unsigned int index){
 }
 
 constexpr uint8_t nibble = 4;
+constexpr uint8_t byte   = 8;
 const int max_int = pow(10, 12);
 struct BCD {
 	static constexpr uint8_t figure_offset   = 12;
@@ -100,36 +101,10 @@ struct BCD {
 		if (neg_a) int_a = -int_a;
 		if (neg_b) int_b = -int_b;
 
-		uint8_t shift_a = 0;
-		uint8_t shift_b = 0;
-
-		while (!read_bit(int_a, 63)){
-			int_a <<= 1;
-			shift_a++;
-		} 
-
-		while (!read_bit(int_a, 63)){
-			int_b <<= 1;
-			shift_b++;
-		} 
-
 		int8_t exp_a = a.get_exponent();
 		int8_t exp_b = b.get_exponent();
 
-		if (exp_a != exp_b){
-			bool exp_a_larger = (exp_a > exp_b);
 
-			if (exp_a_larger){
-				int_b /= pow(10, exp_a - exp_b);
-			}
-			else{
-				int_a /= pow(10, exp_b - exp_a);
-			}
-
-			return BCD((int_a >> shift_a) + (int_b >> shift_b), (exp_a_larger) ? exp_a : exp_b);
-		}
-
-		return BCD(int_a + int_b, exp_a);
 	}
 
 	// Gets exponent of the BCD
@@ -188,9 +163,6 @@ struct BCD {
 		value = 0;	
 			
 		// No need for an exponent check, as int cannot be large enough to require one 
-		// The i < sizeof(int) also works because ints are so small
-
-		
 
 		for (int i = 0; i < digit_count; i++){
 			value |= (
@@ -200,6 +172,18 @@ struct BCD {
 	}
 
 	private:
+	void round_value(){
+		if (!(value >> (64 - (figure_offset)))) return;
+
+		uint16_t temp = 0;
+
+		temp |= (value << nibble);
+
+		value >>= (figure_offset);
+		value &= ~(0 << (figure_offset));
+		value |= (temp >> nibble);
+	}
+
 	void init(){
 		
 	}
