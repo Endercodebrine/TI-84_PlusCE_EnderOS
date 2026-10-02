@@ -193,11 +193,9 @@ struct BCD {
 		
 
 		for (int i = 0; i < digit_count; i++){
-			for (int j = 0; j < nibble; j++){
-				value |= (
-						(((uint64_t)floor(integer / pow(10, i)) % 10) >> 0) << 
-						(figure_offset + 0 + (i * nibble)));
-			}	
+			value |= (
+					((uint64_t)floor(integer / pow(10, i)) % 10) << 
+					(figure_offset +  (i * nibble)));
 		}
 	}
 
