@@ -71,15 +71,14 @@ struct BCD {
 		int64_t output = 0;
 		uint8_t temp   = 0;
 		
-
-		bool input = 0;
-
 		// So this is very not right
 		// THINK AGAIN!
-		for (uint8_t i = 0; i < 13; i++){
+		for (uint8_t i = 0; i < digit_count; i++){
 			for (uint8_t j = 0; j < nibble; j++){
-				// Read the bit at the indexed value, shift it by j so it's in the right position, 
+				// Read the bit at the indexed value, 
+				// shift it by j so it's in the right position, 
 				// and bitwise OR it into the result.
+
 				temp |= (read_bit(value, figure_offset + j + (i * nibble)) << j);
 			}
 
@@ -104,7 +103,7 @@ struct BCD {
 		int8_t exp_a = a.get_exponent();
 		int8_t exp_b = b.get_exponent();
 
-
+		
 	}
 
 	// Gets exponent of the BCD
@@ -167,7 +166,7 @@ struct BCD {
 		for (int i = 0; i < digit_count; i++){
 			value |= (
 					((uint64_t)floor(integer / pow(10, i)) % 10) << 
-					(figure_offset +  (i * nibble)));
+					(figure_offset + (i * nibble)));
 		}
 	}
 
@@ -177,11 +176,18 @@ struct BCD {
 
 		uint16_t temp = 0;
 
+		uint8_t shift = 0;
+
 		temp |= (value << nibble);
 
-		value >>= (figure_offset);
+		do { 
+			shift++;
+		} while (value >>= (shift * nibble));
+
 		value &= ~(0 << (figure_offset));
 		value |= (temp >> nibble);
+
+		set_exponent(get_exponent() + shift);
 	}
 
 	void init(){
