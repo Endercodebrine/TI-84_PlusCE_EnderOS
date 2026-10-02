@@ -172,7 +172,7 @@ struct BCD {
 	}
 
 	private:
-	void round_value(){
+	void truncate_value(){
 		if (!(value >> (64 - (figure_offset)))) return;
 
 		uint16_t temp = 0;
