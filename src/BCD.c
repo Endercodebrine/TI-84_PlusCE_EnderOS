@@ -46,28 +46,22 @@ struct BCD {
 
 	BCD() {}
 
-	BCD(int init_value){
+	BCD(int64_t init_value){
 		from_sint(init_value);
 		set_exponent(0);
 	}
 
-	BCD(int init_value, int8_t exponent){
+	BCD(int64_t init_value, int8_t exponent){
 		from_sint(init_value);
 		set_exponent(exponent);	
-	}
 
-	BCD(int64_t init_value){
-
-		set_exponent(0);
-	}
-
-	BCD(int64_t init_value, int8_t init_exponent){
-			
-		set_exponent(init_exponent);
+		truncate_value();
 	}
 
 	// Gets the int64_t value of the BCD, without exponent
 	int64_t to_int64(){
+		truncate_value();
+
 		int64_t output = 0;
 		uint8_t temp   = 0;
 		
@@ -94,16 +88,16 @@ struct BCD {
 		int64_t int_a = a.to_int64();
 		int64_t int_b = b.to_int64();
 
-		bool neg_a = (int_a < 0);
-		bool neg_b = (int_b < 0);
-
-		if (neg_a) int_a = -int_a;
-		if (neg_b) int_b = -int_b;
+		//bool neg_a = (int_a < 0);
+		//bool neg_b = (int_b < 0);	
 
 		int8_t exp_a = a.get_exponent();
 		int8_t exp_b = b.get_exponent();
 
-		
+		if (exp_a == exp_b) return BCD(int_a + int_b, exp_a);
+		else{	
+			unsigned int sum;
+		}
 	}
 
 	// Gets exponent of the BCD
