@@ -1,6 +1,6 @@
 # TI-84_PlusCE_EnderOS
 
-A new and improved interface for the TI-84 +CE
+A new and improved interface for the TI-84 Plus CE
 ___
 This project was made using the C toolchain for the TI-84 Z80 processers, so I am unsure if it will work on more modern calculators with ARM processors. If I'm still working on this in a while, I'll try to rectify that.
 ___
