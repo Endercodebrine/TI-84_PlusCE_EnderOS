@@ -7,7 +7,7 @@ ICON = EnderOS.png
 DESCRIPTION = "A new and improved interface for the TI-84"
 COMPRESSED = NO
 
-CFLAGS = -Wall -Wextra -Oz
+CFLAGS = -std=c23 -Wall -Wextra -Oz
 CXXFLAGS = -Wall -Wextra -Oz
 
 # ----------------------------

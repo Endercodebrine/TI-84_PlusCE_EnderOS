@@ -2,8 +2,8 @@
 #include<math.h>
 
 //Reads the value at the specified index in the passed data
-template<typename T>
-bool read_bit(T value, unsigned int index){
+//template<typename T>
+bool read_bit(uint64_t value, uint8_t index){
 	return (value >> index) & 1;
 }
 
@@ -60,22 +60,16 @@ struct BCD {
 	BCD(int64_t init_value){
 		from_sint64(init_value);
 		set_exponent(0);
-
-		truncate_value();
-		update_digit_count();
 	}
 
 	BCD(int64_t init_value, int8_t exponent){
-		from_sint(init_value);
+		from_sint64(init_value);
 		set_exponent(exponent);	
-
-		truncate_value();
-		update_digit_count();
 	}
 
 	// Gets the int64_t value of the BCD, without exponent
 	int64_t to_int64(){
-		truncate_value();
+		//simplify_value();
 
 		int64_t output = 0;
 		uint8_t temp   = 0;
@@ -99,24 +93,25 @@ struct BCD {
 		return (read_bit(value, 0) ? -output : output);
 	}
 
-	bool update_digit_count(){
-		uint8_t digit_count = -1;
+	void update_digit_count(){
+		uint8_t digit_count;
 
-		for (int i = max_digit_count - 1; i >= 0; i--){
-			if (0x0F & (value >> ((i * nibble) + figure_offset))){
-				digit_count = i;
+		for (int i = max_digit_count; i > 0; i--){
+			if (0x0F & (value >> (((i - 1) * nibble) + figure_offset))){
+				digit_count = i; 
 				goto EndFor;
 			}  
 		}
-		return false;
+
+		reset_digit_count();
+		return;
 
 	EndFor:
 		set_digit_count(digit_count);
-		return true;
 	}
 
 	bool set_digit_count(uint8_t count){
-		if (count < 0 || count > max_digit_count) return false;
+		if (count < 0 || count > 16) return false;
 
 		reset_digit_count();
 		
@@ -134,6 +129,14 @@ struct BCD {
 		int8_t exp_a = get_exponent();
 		int8_t exp_b = b.get_exponent();	
 
+		if (int_a == 0){
+			from_sint64(int_b);
+			set_exponent(exp_b);
+			return;
+		}
+
+		if (int_b == 0) return;
+
 		if (exp_a == exp_b) {
 			//TODO: Make from_int64_t and from_uint64_t functions
 			from_sint64(int_a + int_b);
@@ -143,17 +146,35 @@ struct BCD {
 		else{
 			int64_t sum = 0;
 
+			{	
+				const uint64_t mask = 0xF000000000000000;
+
+				uint64_t tmp_a = value;
+				uint64_t tmp_b = b.value;
+	
+				while (!(mask & (tmp_a <<= nibble))){ 
+					int_a *= (int64_t)10;
+					exp_a--;
+				}
+
+				while (!(mask & (tmp_b <<= nibble))){ 
+					int_b *= (int64_t)10;
+					exp_b--;
+				}
+			}
+
 			//TODO: Fix this logic
+			//Okay, but it works
 			if (exp_a > exp_b){
 				sum = int_a + (int_b * pow(10, exp_b - exp_a));	
-				from_sint64(sum);
 				set_exponent(exp_a);
+				from_sint64(sum);
 				return;
 			}
 			else{
 				sum = int_b + (int_a * pow(10, exp_a - exp_b));	
-				from_sint64(sum);
 				set_exponent(exp_b);
+				from_sint64(sum);
 				return;	
 			}
 		}
@@ -169,7 +190,7 @@ struct BCD {
 		int8_t exp_a = a.get_exponent();
 		int8_t exp_b = b.get_exponent();	
 
-		if (exp_a == exp_b) {
+		if (exp_a == exp_b){
 			return BCD(int_a + int_b, exp_a);	
 		}
 		else{
@@ -199,15 +220,32 @@ struct BCD {
 	void from_uint64(uint64_t uint64){
 		int8_t exp = 0;
 	
-		if (value > 99999999999999){
+		//if (uint64 > (1 * pow(10, max_digit_count + 1)) - 1){
 			//TODO: This
-			exp = 13;
-			uint64 /= pow(10, 13);
+			//exp = 13;
+			//uint64 /= pow(10, 13);
+		//}
+
+		clear_digits();
+
+		uint64_t max = (1 * pow(10, max_digit_count));
+
+		while (uint64 >= max){
+			uint64 /= 10;
+			exp++;
 		}
 
-		from_uint(value);
+		for (uint8_t i = 0; i < max_digit_count; i++){
+			value |= ((uint64 % 10) << (figure_offset + (i * nibble)));
 
-		set_exponent(exp);
+			uint64 /= 10;
+
+			if (!uint64) break;
+		}
+		
+		set_exponent(exp + get_exponent());
+		simplify_value();
+		update_digit_count();
 	}
 
 	// Gets exponent of the BCD
@@ -272,30 +310,64 @@ struct BCD {
 					((uint64_t)floor(integer / pow(10, i)) % 10) << 
 					(figure_offset + (i * nibble)));
 		}
+
+		simplify_value();
+		update_digit_count();
 	}
 
 	private:
-	void truncate_value(){
-		if (!(value >> (64 - (figure_offset)))) return;
+	void clear_digits(){
+		value &= 0x000000000000FFFF;
+	}
 
-		uint16_t temp = 0;
+	void simplify_value(){
+		int8_t exp = get_exponent();
 
-		uint8_t shift = 0;
+		uint64_t digits = 0xFFFFFFFFFFFF0000 & value;
 
-		temp |= (value << nibble);
+		if (exp > 0){
+		const uint64_t mask = 0xF000000000000000;
+			while (!(exp == 0 || (digits & mask))){
+				digits <<= nibble;
+				exp--;
+			}
+		}
+		else if (exp < 0){
+		const uint64_t mask = 0x0000000000F0000;
+			while (exp != 0 || !(digits & mask)){
+				digits >>= nibble;
+				exp++;
+			}
+		}
 
-		do { 
-			shift++;
-		} while (value >>= (shift * nibble));
+		clear_digits();
 
-		value &= ~(0 << (figure_offset));
-		value |= (temp >> nibble);
+		value |= digits;
 
-		set_exponent(get_exponent() + shift);
+		set_exponent(exp);
+
+		// If 
+		//if (!(value >> (64 - (figure_offset)))) return;
+
+		//uint16_t temp = 0;
+
+		//uint8_t shift = 0;
+
+		//temp |= (value << nibble);
+
+		// Value shifted left to
+		//do { 
+			//shift++;
+		//} while (value >>= (shift * nibble));
+
+		//value &= ~((uint32_t)0 << figure_offset);
+		//value |= (temp >> nibble);
+
+		//set_exponent(get_exponent() + shift);
 	}
 
 	void reset_digit_count(){
-		value &= ~(0x0000FF << digit_count_offset);	
+		value &= ~0x000000000000F000;	
 	}
 
 	void init(){
