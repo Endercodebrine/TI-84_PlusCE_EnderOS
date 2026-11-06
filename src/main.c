@@ -4,7 +4,8 @@
 #include<graphx.h>
 #include<string.h>
 #include<stdio.h>
-#include"BCD.c"
+#include<math.h>
+//#include"BCD.c"
 
 // Index legend:
 // 0 = Character

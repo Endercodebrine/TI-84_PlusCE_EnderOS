@@ -23,11 +23,11 @@ typedef uint64_t BCD;
 constexpr uint8_t nibble = 4;
 constexpr uint8_t byte   = 8;
 
-static constexpr uint8_t BCD_figure_offset      = 16;
-static constexpr uint8_t BCD_digit_count_offset = 12;
-static constexpr uint8_t BCD_exponent_offset    = 4;
+constexpr uint8_t BCD_figure_offset      = 16;
+constexpr uint8_t BCD_digit_count_offset = 12;
+constexpr uint8_t BCD_exponent_offset    = 4;
 
-static constexpr uint8_t BCD_max_digit_count = (64 - BCD_figure_offset) / nibble;
+constexpr uint8_t BCD_max_digit_count = (64 - BCD_figure_offset) / nibble;
 
 uint64_t RO_BCD_max_int = -1;
 
