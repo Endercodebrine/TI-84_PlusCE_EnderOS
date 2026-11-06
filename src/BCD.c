@@ -76,24 +76,17 @@ void BCD_constants_init(){
 int64_t BCD_to_int64(BCD *value){
 	//simplify_value();
 
-	int64_t output = 0;
-	uint8_t temp   = 0;
+	uint64_t temp = (*value & 0xFFFFFFFFFFF0000) >> BCD_figure_offset;
+	uint64_t output = 0;
 
-	// So this is very not right
-	// THINK AGAIN!
-	for (uint8_t i = 0; i < BCD_max_digit_count; i++){
-		for (uint8_t j = 0; j < nibble; j++){
-			// Read the bit at the indexed value, 
-			// shift it by j so it's in the right position, 
-			// and bitwise OR it into the result.
+	uint8_t exponent = 0;
 
-			temp |= (read_bit(*value, BCD_figure_offset + j + (i * nibble)) << j);
-		}
-
-		// Multiply the result by its 10 exponent and add it to the output
-		output += (temp * pow(10, i)); 
-		temp = 0;
-	}
+	while (temp){
+		output += (temp & 0x000000000000000F) * pow(10, exponent);
+		temp &= 0xFFFFFFFFFFFFFFF0;
+		temp >>= nibble;
+		exponent++;
+	}	
 
 	return (read_bit(*value, 0) ? -output : output);
 }

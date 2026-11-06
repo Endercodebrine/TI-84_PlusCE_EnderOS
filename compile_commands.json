@@ -1,6 +1,6 @@
 [
   {
-    "file": "src/main.c",
+    "file": "src/BCD.c",
     "arguments": [
       "/home/endercodebrine/CEdev/bin/ez80-clang",
       "-MD",
@@ -29,11 +29,11 @@
       "-Wextra",
       "-Oz",
       "-DNDEBUG=1",
-      "src/main.c",
+      "src/BCD.c",
       "-o",
-      "obj/src/main.c.bc"
+      "obj/src/BCD.c.bc"
     ],
     "directory": "/home/endercodebrine/CEdev/examples/quality_os",
-    "output": "obj/src/main.c.bc"
+    "output": "obj/src/BCD.c.bc"
   }
 ]
