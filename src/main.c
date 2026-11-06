@@ -189,11 +189,11 @@ void log_line_buffer(bool clear_line){
 }
 
 // Prints the passed answer to a new line
-void print_answer(BCD answer, bool is_double){
+void print_answer(BCD answer, bool is_decimal){
 	char buffer[Max_answer_length];
 
-	if (!is_double){
-		sprintf(buffer, "%ld", BCD_to_int64(&answer));
+	if (!is_decimal){
+		BCD_output_formatted(&answer, buffer, Max_answer_length, 0, 0);
 	}
 	else{	
 		sprintf(buffer, "Coming soon!");

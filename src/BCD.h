@@ -10,12 +10,17 @@ bool BCD_set_digit_count(BCD *value, uint8_t count);
 void BCD_update_digit_count(BCD *value);
 int8_t BCD_get_exponent(BCD *value);
 void BCD_clear_exponent(BCD *value);
-bool BCD_set_exponent(BCD *value, int8_t exponent);
+void BCD_set_exponent(BCD *value, int8_t exponent);
 void BCD_clear_digits(BCD *value);
 //void BCD_simplify_value(BCD *value);
 void BCD_from_uint64(BCD *value, uint64_t uint64);
 void BCD_from_sint64(BCD *value, int64_t sint64);
 void BCD_add(BCD *a, BCD *b);
+void BCD_output_formatted(BCD *value, char *output, uint8_t out_length, uint8_t min_dp, uint8_t max_dp);
+
+inline uint8_t BCD_get_digit_count(BCD *value){
+	return ((*value & 0x000000000000F000) >> 12);
+}
 
 inline void BCD_init(BCD* value, int64_t init_value, int8_t exponent){
 	*value = 0;

@@ -82,7 +82,7 @@ int64_t BCD_to_int64(BCD *value){
 	uint8_t exponent = 0;
 
 	while (temp){
-		output += (temp & 0x000000000000000F) * pow(10, exponent);
+		output += ((temp & 0x000000000000000F) * pow(10, exponent));
 		temp &= 0xFFFFFFFFFFFFFFF0;
 		temp >>= nibble;
 		exponent++;
@@ -121,20 +121,14 @@ EndFor:
 	BCD_set_digit_count(value, digit_count);
 }
 
+//BCD_get_digit_count is in BCD.h
+
 // Gets exponent of the BCD
 int8_t BCD_get_exponent(BCD *value){
-	uint8_t tens = 0;
-	uint8_t ones = 0;
 
-	uint8_t i;
+	int8_t exp = ((*value & 0x0000000000000FF0) >> nibble);
 
-	for (i = 0; i < nibble; i++)
-		ones |= (read_bit(*value, i + BCD_exponent_offset) << i);
-
-	for (i = 0; i < nibble; i++)
-		tens |= (read_bit(*value, i + (BCD_exponent_offset + nibble)) << i);
-
-	return (read_bit(*value, 1) ? -(ones + (tens * 10)) : (ones + (tens * 10)));
+	return (read_bit(*value, 1) ? -exp : exp);
 }
 
 void BCD_clear_exponent(BCD* value){
@@ -144,9 +138,7 @@ void BCD_clear_exponent(BCD* value){
 	*value &= ~(1 << 1);
 }
 
-bool BCD_set_exponent(BCD *value, int8_t exponent){
-	if (exponent > 99 || exponent < -99) return false;
-
+void BCD_set_exponent(BCD *value, int8_t exponent){
 	BCD_clear_exponent(value);
 
 	if (exponent < 0) {
@@ -154,13 +146,7 @@ bool BCD_set_exponent(BCD *value, int8_t exponent){
 		exponent = -exponent;
 	}
 
-	if (exponent < 10) *value |= (exponent << BCD_exponent_offset);
-	else{
-		*value |= ((exponent % 10) << BCD_exponent_offset);
-		*value |= ((exponent / 10) << (BCD_exponent_offset + nibble));
-	}
-
-	return true;
+	*value |= (exponent << BCD_exponent_offset);
 }
 
 void BCD_clear_digits(BCD *value){
@@ -313,5 +299,32 @@ void BCD_add(BCD *a, BCD *b){
 			BCD_from_sint64(a, sum);
 			return;	
 		}
+	}
+}
+
+void BCD_output_formatted(BCD *value, char* output, uint8_t out_length, uint8_t min_dp, uint8_t max_dp){
+	if (out_length < 14) output = "ERROR";
+
+	uint64_t figures = ((*value & 0xFFFFFFFFFFFF0000) >> BCD_figure_offset);
+
+	int8_t exp = BCD_get_exponent(value);
+
+	uint8_t index = 0;
+
+	//TODO: Make much better
+	
+	if (*value & 1){
+		output[index] = '-';
+		index++;
+	}
+
+	//TODO: Handle decimals and non-zero exponents
+	
+	while (!(figures & 0xF000000000000000)) figures <<= nibble;
+
+	for (uint8_t i = 0; i < BCD_get_digit_count(value); i++){
+		output[index++] = (((figures & 0xF000000000000000) >> 60) + '0');
+		figures &= 0x0FFFFFFFFFFFFFFF;
+		figures <<= nibble;
 	}
 }
