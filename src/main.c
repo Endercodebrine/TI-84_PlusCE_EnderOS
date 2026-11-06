@@ -6,8 +6,6 @@
 #include<stdio.h>
 #include<math.h>
 
-
-
 #include"BCD.h"
 
 // Index legend:
@@ -195,7 +193,7 @@ void print_answer(BCD answer, bool is_double){
 	char buffer[Max_answer_length];
 
 	if (!is_double){
-		sprintf(buffer, "%.g", BCD_to_int64(&answer));
+		sprintf(buffer, "%ld", BCD_to_int64(&answer));
 	}
 	else{	
 		sprintf(buffer, "Coming soon!");
@@ -256,7 +254,7 @@ bool calculate(){
 
 	uint16_t value;	
 
-	BCD current_number;
+	BCD current_number = 0;
 
 	BCD answer = 0;
 
@@ -286,6 +284,7 @@ bool calculate(){
 					temp += (line_buffer[i++] * pow(10, --number_count)); 
 				}
 
+				//BCD_init(&current_number, temp, 0);
 				BCD_from_sint64(&current_number, temp);
 
 				// Without this, skips the next operator
@@ -295,7 +294,7 @@ bool calculate(){
 			case PLUS_INDEX ... MODULO_INDEX:
 				answer = apply_operator(queued_operator, answer, current_number);
 				queued_operator = value;
-				if (!answer) answer = current_number;
+				if (!BCD_to_int64(&answer)) answer = current_number;
 				current_number = 0;
 				break;
 

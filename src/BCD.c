@@ -322,10 +322,3 @@ void BCD_add(BCD *a, BCD *b){
 		}
 	}
 }
-
-inline void BCD_init(BCD* value, int64_t init_value, int8_t exponent){
-	*value = 0;
-
-	BCD_from_sint64(value, init_value);
-	BCD_set_exponent(value, exponent);	
-}

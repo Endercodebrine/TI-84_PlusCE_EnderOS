@@ -16,4 +16,10 @@ void BCD_clear_digits(BCD *value);
 void BCD_from_uint64(BCD *value, uint64_t uint64);
 void BCD_from_sint64(BCD *value, int64_t sint64);
 void BCD_add(BCD *a, BCD *b);
-inline void BCD_init(BCD *value, int64_t init_value, int8_t exponent);
+
+inline void BCD_init(BCD* value, int64_t init_value, int8_t exponent){
+	*value = 0;
+
+	BCD_from_sint64(value, init_value);
+	BCD_set_exponent(value, exponent);	
+}
