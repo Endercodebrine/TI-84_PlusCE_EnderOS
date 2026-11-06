@@ -5,7 +5,10 @@
 #include<string.h>
 #include<stdio.h>
 #include<math.h>
-//#include"BCD.c"
+
+
+
+#include"BCD.h"
 
 // Index legend:
 // 0 = Character
@@ -188,14 +191,16 @@ void log_line_buffer(bool clear_line){
 }
 
 // Prints the passed answer to a new line
-void print_answer(double answer, bool is_double){
+void print_answer(BCD answer, bool is_double){
 	char buffer[Max_answer_length];
 
 	if (!is_double){
-		sprintf(buffer, "%.g", answer);
+		sprintf(buffer, "%.g", BCD_to_int64(&answer));
 	}
 	else{	
-		sprintf(buffer, "%.5f", answer);
+		sprintf(buffer, "Coming soon!");
+		//TODO: Make decimals work properly
+		//sprintf(buffer, "%.5f", answer);
 		// When you're handling different DP of output,
 		// sprintf("%.*f", n, answer);
 		// You'll thank you later.
@@ -219,12 +224,13 @@ void print_answer(double answer, bool is_double){
 	gfx_SetTextXY(Test_start_pos[0], Test_start_pos[1] + (Line_spacing * current_line));
 }
 
-double apply_operator(uint16_t oper, double a, double b){
+BCD apply_operator(uint16_t oper, BCD a, BCD b){
 	if (oper == 0x0000) return b;
 
 	switch(oper){
 		case PLUS_INDEX:
-			return a + b;
+			BCD_add(&a, &b);
+			return a;
 
 		case MINUS_INDEX:
 			return a - b;
@@ -250,12 +256,14 @@ bool calculate(){
 
 	uint16_t value;	
 
-	double current_number = 0;
+	BCD current_number;
 
-	double answer = 0;
+	BCD answer = 0;
+
+	uint64_t temp = 0;
 
 	bool allow_separator = false;
-	bool is_double = false;
+	bool is_decimal = false;
 	
 	uint16_t queued_operator = 0x0000;
 
@@ -269,13 +277,16 @@ bool calculate(){
 
 		switch (value){
 			case 0x0000 ... 0x0009:
+				temp = 0;
 				for (number_count = 0; 
 						line_buffer[i + number_count] >= 0x0000 && line_buffer[i + number_count] <= 0x0009;
 					 	number_count++);
 
 				while (number_count > 0){
-					current_number += (line_buffer[i++] * pow(10, --number_count)); 
+					temp += (line_buffer[i++] * pow(10, --number_count)); 
 				}
+
+				BCD_from_sint64(&current_number, temp);
 
 				// Without this, skips the next operator
 				i--; 
@@ -289,7 +300,7 @@ bool calculate(){
 				break;
 
 			case DECIMAL_INDEX:
-				is_double = true;
+				is_decimal = true;
 				break;
 
 			case SEPARATOR_INDEX:
@@ -306,7 +317,7 @@ bool calculate(){
 	apply_operator(queued_operator, current_number, answer);
 
 exit_loop:
-	print_answer(answer, is_double);
+	print_answer(answer, is_decimal);
 	log_line_buffer(true);
 }
 

@@ -2,6 +2,8 @@
 #include<math.h>
 #include<stdbool.h>
 
+#include "BCD.h"
+
 //Reads the value at the specified index in the passed data
 //template<typename T>
 bool read_bit(uint64_t value, uint8_t index){
@@ -29,7 +31,7 @@ constexpr uint8_t BCD_exponent_offset    = 4;
 
 constexpr uint8_t BCD_max_digit_count = (64 - BCD_figure_offset) / nibble;
 
-uint64_t RO_BCD_max_int = -1;
+uint64_t RO_BCD_max_int;
 
 void BCD_constants_init(){
 	RO_BCD_max_int = pow(10, BCD_max_digit_count);
